@@ -145,6 +145,7 @@ router.post("/nextCheckpoint/:userID/:trackID", async (req, res) => {
 	let { userID, trackID } = req.params;
 	let track = req.body;
 	let errors = [];
+	let userFinishedTrack = false;
 
 	if (userID == undefined || userID.length != 24) {
 		errors.push("a valid userID must be set as a url parameter");
@@ -159,55 +160,46 @@ router.post("/nextCheckpoint/:userID/:trackID", async (req, res) => {
 
 	await User.findById(userID)
 		.then((user) => {
-			let newCurrentCheckpoint;
 			if (!user) {
 				errors.push("could not find a user with the given id.");
 			} else {
+				// User was located in the DB
 				if (user.tracks.length == 0) {
 					errors.push("this user has no tracks");
 				} else {
+					// User has tracks
 					for (track of user.tracks) {
 						if (track._id == trackID) {
-							console.log("current:", track.currentCheckpoint);
+							// Found the correct track
 							if (track.currentCheckpoint == "") {
-								user.currentCheckpoint = track.checkpoints[0];
+								// If the user has not yet started the track, add the first checkpoint
+								track.currentCheckpoint = track.checkpoints[0]._id;
 								user.save();
 								break;
 							} else {
-								for (
-									let i = 0;
-									i < track.checkpoints.length;
-									i++
-								) {
-									if (
-										track.checkpoints[i]._id ==
-										track.currentCheckpoint
-									) {
-										if (
-											track.checkpoints[i + 1] ==
-											track.checkpoints.length
-										) {
-											res.status(200).send(
-												"user finished the track"
-											);
-											return;
-										} else {
-											user.currentCheckpoint =
-												track.checkpoints[i + 1];
-											user.save();
-										}
+								// If the user has started the track, move to the next checkpoint
+								for (let i = 0; i < track.checkpoints.length; i++) {
+									if (i + 1 == track.checkpoints.length) {
+										// The user completed all of the checkpoints
+										userFinishedTrack = true;
+										track.completed = true;
+										user.save();
 										break;
+									} else {
+										if (track.checkpoints[i]._id == track.currentCheckpoint) {
+											// Found the correct checkpoint
+											// Set the new checkpoint to the one after the previous current checkpoint
+											track.currentCheckpoint = track.checkpoints[i + 1]._id;
+											user.save();
+											break;
+										}
 									}
-									errors.push(
-										"no checkpoint with that id exists for this user"
-									);
+									errors.push("no checkpoint with that id exists for this user");
 								}
 							}
 							break;
 						}
-						errors.push(
-							"no track with that id exists for this user"
-						);
+						errors.push("no track with that id exists for this user");
 					}
 				}
 			}
@@ -217,10 +209,12 @@ router.post("/nextCheckpoint/:userID/:trackID", async (req, res) => {
 			console.error(err);
 		});
 
-	if (errors.length > 0) {
+	if (userFinishedTrack) {
+		res.status(201).send("track finished");
+	} else if (errors.length > 0) {
 		res.status(400).send(errors);
 	} else {
-		res.status(200).send("success");
+		res.status(201).send("success");
 	}
 });
 

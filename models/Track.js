@@ -24,6 +24,10 @@ const TrackSchema = new mongoose.Schema({
 		type: String,
 		default: "",
 	},
+	completed: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 const Track = mongoose.model("TrackSchema", TrackSchema, "tracks");
