@@ -42,6 +42,7 @@ app.use(express.json());
 const passport = require("passport");
 app.use(passport.initialize());
 app.use(passport.session());
+require("./config/passport")(passport);
 
 // Routes
 app.use("/users", require("./routes/users"));

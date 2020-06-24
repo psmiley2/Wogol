@@ -20,6 +20,10 @@ const TrackSchema = new mongoose.Schema({
 		type: [CheckpointSchema],
 		default: [],
 	},
+	currentCheckpoint: {
+		type: String,
+		default: "",
+	},
 });
 
 const Track = mongoose.model("TrackSchema", TrackSchema, "tracks");
