@@ -261,4 +261,58 @@ router.get("/user/:userID/:trackID", async (req, res) => {
 	}
 });
 
+/* ------------------------------ Update A Task ----------------------------- */
+router.post("/user/:userID/:trackID/:checkpointID/:taskID", async (req, res) => {
+	let { userID, trackID, checkpointID, taskID } = req.params;
+	let errors = [];
+	if (checkpointID == undefined || checkpointID.length != 24) {
+		errors.push("a valid checkpointID must be set as a url parameter");
+	}
+	if (userID == undefined || userID.length != 24) {
+		errors.push("a valid userID must be set as a url parameter");
+	}
+	if (trackID == undefined || trackID.length != 24) {
+		errors.push("a valid trackID must be set as a url parameter");
+	}
+
+	if (taskID == undefined || taskID.length != 24) {
+		errors.push("a valid taskID must be set as a url parameter");
+	}
+
+	if (errors.length > 0) {
+		res.status(400).send(errors);
+		return;
+	}
+
+	let updatedTask = req.body;
+
+	let action = {
+		$set: { "tracks.$[track].checkpoints.$[checkpoint].tasks.$[task]": updatedTask },
+	};
+	let filters = {
+		arrayFilters: [
+			{ "track._id": trackID },
+			{ "checkpoint._id": checkpointID },
+			{ "task._id": taskID },
+		],
+	};
+
+	await User.findByIdAndUpdate(userID, action, filters)
+		.then((res) => {
+			if (!res) {
+				errors.push("no user was found with the given userid");
+			}
+		})
+		.catch((err) => {
+			console.error(err);
+		});
+
+	if (errors.length > 0) {
+		res.status(400).send(errors);
+		return;
+	}
+
+	// No errors
+	res.status(201).send(updatedTask);
+});
 module.exports = router;
