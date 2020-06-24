@@ -20,17 +20,9 @@ const CheckpointSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false,
 	},
-	current: {
-		type: Boolean,
-		default: false,
-	},
 });
 
-const Checkpoint = mongoose.model(
-	"CheckpointSchema",
-	CheckpointSchema,
-	"Checkpoint"
-);
+const Checkpoint = mongoose.model("CheckpointSchema", CheckpointSchema, "Checkpoint");
 
 module.exports = {
 	CheckpointSchema,
