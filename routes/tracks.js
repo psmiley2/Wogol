@@ -4,6 +4,7 @@ const { ObjectID } = require("mongodb");
 
 const { Track } = require("../models/Track");
 const User = require("../models/User");
+const { ensureAuthenticated } = require("../config/auth");
 
 /* ----------------------------- Add a new Track ---------------------------- */
 router.post("/", async (req, res) => {
@@ -28,6 +29,7 @@ router.post("/", async (req, res) => {
 		res.status(201).send(track);
 	}
 });
+
 
 /* ---------------------------- Fetch all tracks ---------------------------- */
 router.get("/", async (req, res) => {
