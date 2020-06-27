@@ -30,7 +30,6 @@ router.post("/", async (req, res) => {
 	}
 });
 
-
 /* ---------------------------- Fetch all tracks ---------------------------- */
 router.get("/", async (req, res) => {
 	let errors = [];
@@ -44,6 +43,22 @@ router.get("/", async (req, res) => {
 		res.status(400).send(errors);
 	} else {
 		res.status(200).send(allTracks);
+	}
+});
+
+/* ------------------------ Fetch All Featured Tracks ----------------------- */
+router.get("/featured", async (req, res) => {
+	let errors = [];
+
+	let featuredTracks = await Track.find({ featured: true }).catch((err) => {
+		errors.push("error when making request to the database");
+		console.error(err);
+	});
+
+	if (errors.length > 0) {
+		res.status(400).send(errors);
+	} else {
+		res.status(200).send(featuredTracks);
 	}
 });
 

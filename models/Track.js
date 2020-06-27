@@ -28,6 +28,10 @@ const TrackSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false,
 	},
+	featured: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 const Track = mongoose.model("TrackSchema", TrackSchema, "tracks");
