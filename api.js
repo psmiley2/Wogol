@@ -6,6 +6,9 @@ let app = express();
 // Database
 const mongoose = require("mongoose");
 mongoose.set("useFindAndModify", false);
+
+console.log("mongo url", process.env.MONGODB_URL);
+
 mongoose.connect(process.env.MONGODB_URL || process.env.MONGODB_URI, {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
