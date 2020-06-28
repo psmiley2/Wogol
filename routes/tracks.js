@@ -4,6 +4,7 @@ const { ObjectID } = require("mongodb");
 
 const { Track } = require("../models/Track");
 const User = require("../models/User");
+const Suggestion = require("../models/Suggestion");
 const { ensureAuthenticated } = require("../config/auth");
 
 /* ----------------------------- Add a new Track ---------------------------- */
@@ -59,6 +60,26 @@ router.get("/featured", async (req, res) => {
 		res.status(400).send(errors);
 	} else {
 		res.status(200).send(featuredTracks);
+	}
+});
+
+/* ----------------------------- Suggest A Track ---------------------------- */
+router.post("/suggestion", async (req, res) => {
+	let errors = [];
+
+	let newSuggestion = new Suggestion({
+		suggestion: req.body.suggestion,
+	});
+
+	await newSuggestion.save().catch((err) => {
+		errors.push("error occurred while adding the suggestion to the database");
+		console.error(err);
+	});
+
+	if (errors.length > 0) {
+		res.status(400).send(errors);
+	} else {
+		res.status(201).send("success");
 	}
 });
 
@@ -332,4 +353,5 @@ router.post("/user/:userID/:trackID/:checkpointID/:taskID", async (req, res) => 
 	// No errors
 	res.status(201).send(updatedTask);
 });
+
 module.exports = router;
