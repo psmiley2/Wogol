@@ -6,6 +6,7 @@ const { ObjectID } = require("mongodb");
 const passport = require("passport");
 const { ensureAuthenticated } = require("../config/auth");
 const User = require("../models/User");
+require("dotenv").config();
 
 /* ------------------------- Fetch an existing user ------------------------- */
 router.get("/find/:userid", async (req, res) => {
@@ -135,6 +136,7 @@ router.post("/register", async (req, res) => {
 
 /* ------------------------------ Login a user ------------------------------ */
 router.post("/login", passport.authenticate("local"), async (req, res) => {
+	console.log("mongo url", process.env.MONGODB_URI);
 	let userid = req.session.passport.user;
 	let errors = [];
 	let user;
